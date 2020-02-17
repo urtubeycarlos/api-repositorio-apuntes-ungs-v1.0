@@ -28,6 +28,7 @@
     <table name="assignature" phpName="Assignature">
         <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
         <column name="name" type="varchar" size="128" required="true"/>
+        <column name="md5_name" type="varchar" size="256" required="true"/>
         <column name="career_id" type="integer" required="true"/>
         <foreign-key foreignTable="career">
             <reference local="career_id" foreign="id"/>
@@ -49,6 +50,7 @@
     <table name="career" phpName="Career">
         <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
         <column name="name" type="varchar" size="128" required="true"/>
+        <column name="md5_name" type="varchar" size="256" required="true"/>
     </table>
 
     <!--

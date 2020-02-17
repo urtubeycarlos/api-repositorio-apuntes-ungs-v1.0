@@ -59,7 +59,7 @@ class AssignatureTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 3;
+    const NUM_COLUMNS = 4;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class AssignatureTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 3;
+    const NUM_HYDRATE_COLUMNS = 4;
 
     /**
      * the column name for the id field
@@ -80,6 +80,11 @@ class AssignatureTableMap extends TableMap
      * the column name for the name field
      */
     const COL_NAME = 'assignature.name';
+
+    /**
+     * the column name for the md5_name field
+     */
+    const COL_MD5_NAME = 'assignature.md5_name';
 
     /**
      * the column name for the career_id field
@@ -98,11 +103,11 @@ class AssignatureTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Name', 'CareerId', ),
-        self::TYPE_CAMELNAME     => array('id', 'name', 'careerId', ),
-        self::TYPE_COLNAME       => array(AssignatureTableMap::COL_ID, AssignatureTableMap::COL_NAME, AssignatureTableMap::COL_CAREER_ID, ),
-        self::TYPE_FIELDNAME     => array('id', 'name', 'career_id', ),
-        self::TYPE_NUM           => array(0, 1, 2, )
+        self::TYPE_PHPNAME       => array('Id', 'Name', 'Md5Name', 'CareerId', ),
+        self::TYPE_CAMELNAME     => array('id', 'name', 'md5Name', 'careerId', ),
+        self::TYPE_COLNAME       => array(AssignatureTableMap::COL_ID, AssignatureTableMap::COL_NAME, AssignatureTableMap::COL_MD5_NAME, AssignatureTableMap::COL_CAREER_ID, ),
+        self::TYPE_FIELDNAME     => array('id', 'name', 'md5_name', 'career_id', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
     /**
@@ -112,11 +117,11 @@ class AssignatureTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, 'CareerId' => 2, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, 'careerId' => 2, ),
-        self::TYPE_COLNAME       => array(AssignatureTableMap::COL_ID => 0, AssignatureTableMap::COL_NAME => 1, AssignatureTableMap::COL_CAREER_ID => 2, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, 'career_id' => 2, ),
-        self::TYPE_NUM           => array(0, 1, 2, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, 'Md5Name' => 2, 'CareerId' => 3, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, 'md5Name' => 2, 'careerId' => 3, ),
+        self::TYPE_COLNAME       => array(AssignatureTableMap::COL_ID => 0, AssignatureTableMap::COL_NAME => 1, AssignatureTableMap::COL_MD5_NAME => 2, AssignatureTableMap::COL_CAREER_ID => 3, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, 'md5_name' => 2, 'career_id' => 3, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
     /**
@@ -138,6 +143,7 @@ class AssignatureTableMap extends TableMap
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('name', 'Name', 'VARCHAR', true, 128, null);
+        $this->addColumn('md5_name', 'Md5Name', 'VARCHAR', true, 256, null);
         $this->addForeignKey('career_id', 'CareerId', 'INTEGER', 'career', 'id', true, null, null);
     } // initialize()
 
@@ -305,10 +311,12 @@ class AssignatureTableMap extends TableMap
         if (null === $alias) {
             $criteria->addSelectColumn(AssignatureTableMap::COL_ID);
             $criteria->addSelectColumn(AssignatureTableMap::COL_NAME);
+            $criteria->addSelectColumn(AssignatureTableMap::COL_MD5_NAME);
             $criteria->addSelectColumn(AssignatureTableMap::COL_CAREER_ID);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.name');
+            $criteria->addSelectColumn($alias . '.md5_name');
             $criteria->addSelectColumn($alias . '.career_id');
         }
     }

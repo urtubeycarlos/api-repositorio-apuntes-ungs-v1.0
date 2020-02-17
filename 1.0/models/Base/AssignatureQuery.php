@@ -22,10 +22,12 @@ use models\Map\AssignatureTableMap;
  *
  * @method     ChildAssignatureQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildAssignatureQuery orderByName($order = Criteria::ASC) Order by the name column
+ * @method     ChildAssignatureQuery orderByMd5Name($order = Criteria::ASC) Order by the md5_name column
  * @method     ChildAssignatureQuery orderByCareerId($order = Criteria::ASC) Order by the career_id column
  *
  * @method     ChildAssignatureQuery groupById() Group by the id column
  * @method     ChildAssignatureQuery groupByName() Group by the name column
+ * @method     ChildAssignatureQuery groupByMd5Name() Group by the md5_name column
  * @method     ChildAssignatureQuery groupByCareerId() Group by the career_id column
  *
  * @method     ChildAssignatureQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
@@ -63,6 +65,7 @@ use models\Map\AssignatureTableMap;
  *
  * @method     ChildAssignature findOneById(int $id) Return the first ChildAssignature filtered by the id column
  * @method     ChildAssignature findOneByName(string $name) Return the first ChildAssignature filtered by the name column
+ * @method     ChildAssignature findOneByMd5Name(string $md5_name) Return the first ChildAssignature filtered by the md5_name column
  * @method     ChildAssignature findOneByCareerId(int $career_id) Return the first ChildAssignature filtered by the career_id column *
 
  * @method     ChildAssignature requirePk($key, ConnectionInterface $con = null) Return the ChildAssignature by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -70,11 +73,13 @@ use models\Map\AssignatureTableMap;
  *
  * @method     ChildAssignature requireOneById(int $id) Return the first ChildAssignature filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildAssignature requireOneByName(string $name) Return the first ChildAssignature filtered by the name column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildAssignature requireOneByMd5Name(string $md5_name) Return the first ChildAssignature filtered by the md5_name column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildAssignature requireOneByCareerId(int $career_id) Return the first ChildAssignature filtered by the career_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildAssignature[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildAssignature objects based on current ModelCriteria
  * @method     ChildAssignature[]|ObjectCollection findById(int $id) Return ChildAssignature objects filtered by the id column
  * @method     ChildAssignature[]|ObjectCollection findByName(string $name) Return ChildAssignature objects filtered by the name column
+ * @method     ChildAssignature[]|ObjectCollection findByMd5Name(string $md5_name) Return ChildAssignature objects filtered by the md5_name column
  * @method     ChildAssignature[]|ObjectCollection findByCareerId(int $career_id) Return ChildAssignature objects filtered by the career_id column
  * @method     ChildAssignature[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
@@ -174,7 +179,7 @@ abstract class AssignatureQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, name, career_id FROM assignature WHERE id = :p0';
+        $sql = 'SELECT id, name, md5_name, career_id FROM assignature WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -328,6 +333,31 @@ abstract class AssignatureQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(AssignatureTableMap::COL_NAME, $name, $comparison);
+    }
+
+    /**
+     * Filter the query on the md5_name column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByMd5Name('fooValue');   // WHERE md5_name = 'fooValue'
+     * $query->filterByMd5Name('%fooValue%', Criteria::LIKE); // WHERE md5_name LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $md5Name The value to use as filter.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildAssignatureQuery The current query, for fluid interface
+     */
+    public function filterByMd5Name($md5Name = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($md5Name)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(AssignatureTableMap::COL_MD5_NAME, $md5Name, $comparison);
     }
 
     /**

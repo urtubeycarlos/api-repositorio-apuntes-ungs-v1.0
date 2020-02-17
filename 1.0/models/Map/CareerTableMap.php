@@ -59,7 +59,7 @@ class CareerTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 2;
+    const NUM_COLUMNS = 3;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class CareerTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 2;
+    const NUM_HYDRATE_COLUMNS = 3;
 
     /**
      * the column name for the id field
@@ -80,6 +80,11 @@ class CareerTableMap extends TableMap
      * the column name for the name field
      */
     const COL_NAME = 'career.name';
+
+    /**
+     * the column name for the md5_name field
+     */
+    const COL_MD5_NAME = 'career.md5_name';
 
     /**
      * The default string format for model objects of the related table
@@ -93,11 +98,11 @@ class CareerTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Name', ),
-        self::TYPE_CAMELNAME     => array('id', 'name', ),
-        self::TYPE_COLNAME       => array(CareerTableMap::COL_ID, CareerTableMap::COL_NAME, ),
-        self::TYPE_FIELDNAME     => array('id', 'name', ),
-        self::TYPE_NUM           => array(0, 1, )
+        self::TYPE_PHPNAME       => array('Id', 'Name', 'Md5Name', ),
+        self::TYPE_CAMELNAME     => array('id', 'name', 'md5Name', ),
+        self::TYPE_COLNAME       => array(CareerTableMap::COL_ID, CareerTableMap::COL_NAME, CareerTableMap::COL_MD5_NAME, ),
+        self::TYPE_FIELDNAME     => array('id', 'name', 'md5_name', ),
+        self::TYPE_NUM           => array(0, 1, 2, )
     );
 
     /**
@@ -107,11 +112,11 @@ class CareerTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, ),
-        self::TYPE_COLNAME       => array(CareerTableMap::COL_ID => 0, CareerTableMap::COL_NAME => 1, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, ),
-        self::TYPE_NUM           => array(0, 1, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, 'Md5Name' => 2, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, 'md5Name' => 2, ),
+        self::TYPE_COLNAME       => array(CareerTableMap::COL_ID => 0, CareerTableMap::COL_NAME => 1, CareerTableMap::COL_MD5_NAME => 2, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, 'md5_name' => 2, ),
+        self::TYPE_NUM           => array(0, 1, 2, )
     );
 
     /**
@@ -133,6 +138,7 @@ class CareerTableMap extends TableMap
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('name', 'Name', 'VARCHAR', true, 128, null);
+        $this->addColumn('md5_name', 'Md5Name', 'VARCHAR', true, 256, null);
     } // initialize()
 
     /**
@@ -292,9 +298,11 @@ class CareerTableMap extends TableMap
         if (null === $alias) {
             $criteria->addSelectColumn(CareerTableMap::COL_ID);
             $criteria->addSelectColumn(CareerTableMap::COL_NAME);
+            $criteria->addSelectColumn(CareerTableMap::COL_MD5_NAME);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.name');
+            $criteria->addSelectColumn($alias . '.md5_name');
         }
     }
 

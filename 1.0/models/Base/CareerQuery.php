@@ -22,9 +22,11 @@ use models\Map\CareerTableMap;
  *
  * @method     ChildCareerQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildCareerQuery orderByName($order = Criteria::ASC) Order by the name column
+ * @method     ChildCareerQuery orderByMd5Name($order = Criteria::ASC) Order by the md5_name column
  *
  * @method     ChildCareerQuery groupById() Group by the id column
  * @method     ChildCareerQuery groupByName() Group by the name column
+ * @method     ChildCareerQuery groupByMd5Name() Group by the md5_name column
  *
  * @method     ChildCareerQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildCareerQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -50,17 +52,20 @@ use models\Map\CareerTableMap;
  * @method     ChildCareer findOneOrCreate(ConnectionInterface $con = null) Return the first ChildCareer matching the query, or a new ChildCareer object populated from the query conditions when no match is found
  *
  * @method     ChildCareer findOneById(int $id) Return the first ChildCareer filtered by the id column
- * @method     ChildCareer findOneByName(string $name) Return the first ChildCareer filtered by the name column *
+ * @method     ChildCareer findOneByName(string $name) Return the first ChildCareer filtered by the name column
+ * @method     ChildCareer findOneByMd5Name(string $md5_name) Return the first ChildCareer filtered by the md5_name column *
 
  * @method     ChildCareer requirePk($key, ConnectionInterface $con = null) Return the ChildCareer by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildCareer requireOne(ConnectionInterface $con = null) Return the first ChildCareer matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildCareer requireOneById(int $id) Return the first ChildCareer filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildCareer requireOneByName(string $name) Return the first ChildCareer filtered by the name column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildCareer requireOneByMd5Name(string $md5_name) Return the first ChildCareer filtered by the md5_name column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildCareer[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildCareer objects based on current ModelCriteria
  * @method     ChildCareer[]|ObjectCollection findById(int $id) Return ChildCareer objects filtered by the id column
  * @method     ChildCareer[]|ObjectCollection findByName(string $name) Return ChildCareer objects filtered by the name column
+ * @method     ChildCareer[]|ObjectCollection findByMd5Name(string $md5_name) Return ChildCareer objects filtered by the md5_name column
  * @method     ChildCareer[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -159,7 +164,7 @@ abstract class CareerQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, name FROM career WHERE id = :p0';
+        $sql = 'SELECT id, name, md5_name FROM career WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -313,6 +318,31 @@ abstract class CareerQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(CareerTableMap::COL_NAME, $name, $comparison);
+    }
+
+    /**
+     * Filter the query on the md5_name column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByMd5Name('fooValue');   // WHERE md5_name = 'fooValue'
+     * $query->filterByMd5Name('%fooValue%', Criteria::LIKE); // WHERE md5_name LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $md5Name The value to use as filter.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildCareerQuery The current query, for fluid interface
+     */
+    public function filterByMd5Name($md5Name = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($md5Name)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(CareerTableMap::COL_MD5_NAME, $md5Name, $comparison);
     }
 
     /**

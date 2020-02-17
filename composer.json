@@ -4,7 +4,7 @@
         "propel/propel": "^2.0@alpha"
     },
     "autoload": {
-        "classmap": ["v1.0/models"]
+        "classmap": ["1.0/models"]
     },
     "minimum-stability": "alpha"
 }
