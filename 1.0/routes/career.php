@@ -1,7 +1,5 @@
 <?php
 
-    require __DIR__ . '/../../vendor/bin/generated-conf/config.php';
-
     $app->get("/career", function($request, $response){
         $response = $response->withHeader('Content-type', 'application/json; charset=utf-8');
         $careers = \models\CareerQuery::create()->find()->toJSON();
@@ -17,6 +15,7 @@
     });
 
     $app->post('/career', function($request, $response){
+        
         $response = $response->withHeader('Content-type', 'application/json; charset=utf-8');
         $name = $request->getParam('name');
         $md5name = md5($name);
@@ -36,11 +35,11 @@
                 'description' => 'Career created successfully',
                 'code' => 201
             );
-            $response->getBody()->write( $status );
+            $response->getBody()->write( json_encode($status) );
 
         }
         
-        return $response;
+        return $response; 
 
     });
 

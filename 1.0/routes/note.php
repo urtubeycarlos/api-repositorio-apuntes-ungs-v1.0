@@ -55,12 +55,14 @@
 
         $status = array(
             'status' => 'succes', 
-            'description' => 'Career created successfully',
+            'description' => 'Note created successfully',
             'code' => 201
         );
-        $response->getBody()->write( $status );
+        
+        $response->getBody()->write( json_encode($status) );
 
         return $response;
+        
     });
 
 ?>

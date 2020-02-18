@@ -39,7 +39,7 @@
                 'description' => 'Assignature created successfully',
                 'code' => 201
             );
-            $response->getBody()->write($carrers);
+            $response->getBody()->write( json_encode($status) );
     
         }
 
