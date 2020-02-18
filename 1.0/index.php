@@ -5,6 +5,7 @@ header('Access-Control-Allow-Origin: *');
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
+
 require './../vendor/autoload.php';
 require './../vendor/config.php';
 require './../vendor/bin/generated-conf/config.php'; //ORM config
@@ -25,16 +26,16 @@ $app->get("/", function($resquest, $response) use($apiVersion, $apiName) {
                     'description' => 'Documentos subidos por los usuarios, asociados a una materia.',
                     'example' => "/api/1.0/note",
                 ),
-                'api/:versionid/note/:id' => array(
-                    'description' => 'Documento con subido por un usuario que tenga el id recibido, asociado a una materia.',
+                'api/:versionid/note/:assignature_id' => array(
+                    'description' => 'Documento con subido por un usuario que tenga la materia con el id recibido.',
                     'example' => "/api/1.0/note/1",
                 ),
                 'api/:versionid/assignature' => array(
                     'description' => 'Espacios curriculares, cada uno asociado a una carrera universitaria.',
                     'example' => "/api/1.0/assignature",
                 ),
-                'api/:versionid/assignature/:id' => array(
-                    'description' => 'Espacio curricular que posee el id recibido, cada uno asociado a una carrera universitaria.',
+                'api/:versionid/assignature/:career_id' => array(
+                    'description' => 'Espacios curricularres asociados a la carrera universitaria con el id recibido.',
                     'example' => "/api/1.0/assignature/1",
                 ),
                 'api/:versionid/career' => array(

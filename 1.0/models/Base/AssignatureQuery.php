@@ -23,12 +23,10 @@ use models\Map\AssignatureTableMap;
  * @method     ChildAssignatureQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildAssignatureQuery orderByName($order = Criteria::ASC) Order by the name column
  * @method     ChildAssignatureQuery orderByMd5Name($order = Criteria::ASC) Order by the md5_name column
- * @method     ChildAssignatureQuery orderByCareerId($order = Criteria::ASC) Order by the career_id column
  *
  * @method     ChildAssignatureQuery groupById() Group by the id column
  * @method     ChildAssignatureQuery groupByName() Group by the name column
  * @method     ChildAssignatureQuery groupByMd5Name() Group by the md5_name column
- * @method     ChildAssignatureQuery groupByCareerId() Group by the career_id column
  *
  * @method     ChildAssignatureQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildAssignatureQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -38,15 +36,15 @@ use models\Map\AssignatureTableMap;
  * @method     ChildAssignatureQuery rightJoinWith($relation) Adds a RIGHT JOIN clause and with to the query
  * @method     ChildAssignatureQuery innerJoinWith($relation) Adds a INNER JOIN clause and with to the query
  *
- * @method     ChildAssignatureQuery leftJoinCareer($relationAlias = null) Adds a LEFT JOIN clause to the query using the Career relation
- * @method     ChildAssignatureQuery rightJoinCareer($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Career relation
- * @method     ChildAssignatureQuery innerJoinCareer($relationAlias = null) Adds a INNER JOIN clause to the query using the Career relation
+ * @method     ChildAssignatureQuery leftJoinCareerAssignature($relationAlias = null) Adds a LEFT JOIN clause to the query using the CareerAssignature relation
+ * @method     ChildAssignatureQuery rightJoinCareerAssignature($relationAlias = null) Adds a RIGHT JOIN clause to the query using the CareerAssignature relation
+ * @method     ChildAssignatureQuery innerJoinCareerAssignature($relationAlias = null) Adds a INNER JOIN clause to the query using the CareerAssignature relation
  *
- * @method     ChildAssignatureQuery joinWithCareer($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the Career relation
+ * @method     ChildAssignatureQuery joinWithCareerAssignature($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the CareerAssignature relation
  *
- * @method     ChildAssignatureQuery leftJoinWithCareer() Adds a LEFT JOIN clause and with to the query using the Career relation
- * @method     ChildAssignatureQuery rightJoinWithCareer() Adds a RIGHT JOIN clause and with to the query using the Career relation
- * @method     ChildAssignatureQuery innerJoinWithCareer() Adds a INNER JOIN clause and with to the query using the Career relation
+ * @method     ChildAssignatureQuery leftJoinWithCareerAssignature() Adds a LEFT JOIN clause and with to the query using the CareerAssignature relation
+ * @method     ChildAssignatureQuery rightJoinWithCareerAssignature() Adds a RIGHT JOIN clause and with to the query using the CareerAssignature relation
+ * @method     ChildAssignatureQuery innerJoinWithCareerAssignature() Adds a INNER JOIN clause and with to the query using the CareerAssignature relation
  *
  * @method     ChildAssignatureQuery leftJoinNote($relationAlias = null) Adds a LEFT JOIN clause to the query using the Note relation
  * @method     ChildAssignatureQuery rightJoinNote($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Note relation
@@ -58,15 +56,14 @@ use models\Map\AssignatureTableMap;
  * @method     ChildAssignatureQuery rightJoinWithNote() Adds a RIGHT JOIN clause and with to the query using the Note relation
  * @method     ChildAssignatureQuery innerJoinWithNote() Adds a INNER JOIN clause and with to the query using the Note relation
  *
- * @method     \models\CareerQuery|\models\NoteQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     \models\CareerAssignatureQuery|\models\NoteQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildAssignature findOne(ConnectionInterface $con = null) Return the first ChildAssignature matching the query
  * @method     ChildAssignature findOneOrCreate(ConnectionInterface $con = null) Return the first ChildAssignature matching the query, or a new ChildAssignature object populated from the query conditions when no match is found
  *
  * @method     ChildAssignature findOneById(int $id) Return the first ChildAssignature filtered by the id column
  * @method     ChildAssignature findOneByName(string $name) Return the first ChildAssignature filtered by the name column
- * @method     ChildAssignature findOneByMd5Name(string $md5_name) Return the first ChildAssignature filtered by the md5_name column
- * @method     ChildAssignature findOneByCareerId(int $career_id) Return the first ChildAssignature filtered by the career_id column *
+ * @method     ChildAssignature findOneByMd5Name(string $md5_name) Return the first ChildAssignature filtered by the md5_name column *
 
  * @method     ChildAssignature requirePk($key, ConnectionInterface $con = null) Return the ChildAssignature by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildAssignature requireOne(ConnectionInterface $con = null) Return the first ChildAssignature matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -74,13 +71,11 @@ use models\Map\AssignatureTableMap;
  * @method     ChildAssignature requireOneById(int $id) Return the first ChildAssignature filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildAssignature requireOneByName(string $name) Return the first ChildAssignature filtered by the name column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildAssignature requireOneByMd5Name(string $md5_name) Return the first ChildAssignature filtered by the md5_name column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
- * @method     ChildAssignature requireOneByCareerId(int $career_id) Return the first ChildAssignature filtered by the career_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildAssignature[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildAssignature objects based on current ModelCriteria
  * @method     ChildAssignature[]|ObjectCollection findById(int $id) Return ChildAssignature objects filtered by the id column
  * @method     ChildAssignature[]|ObjectCollection findByName(string $name) Return ChildAssignature objects filtered by the name column
  * @method     ChildAssignature[]|ObjectCollection findByMd5Name(string $md5_name) Return ChildAssignature objects filtered by the md5_name column
- * @method     ChildAssignature[]|ObjectCollection findByCareerId(int $career_id) Return ChildAssignature objects filtered by the career_id column
  * @method     ChildAssignature[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -179,7 +174,7 @@ abstract class AssignatureQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, name, md5_name, career_id FROM assignature WHERE id = :p0';
+        $sql = 'SELECT id, name, md5_name FROM assignature WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -361,87 +356,40 @@ abstract class AssignatureQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the career_id column
+     * Filter the query by a related \models\CareerAssignature object
      *
-     * Example usage:
-     * <code>
-     * $query->filterByCareerId(1234); // WHERE career_id = 1234
-     * $query->filterByCareerId(array(12, 34)); // WHERE career_id IN (12, 34)
-     * $query->filterByCareerId(array('min' => 12)); // WHERE career_id > 12
-     * </code>
-     *
-     * @see       filterByCareer()
-     *
-     * @param     mixed $careerId The value to use as filter.
-     *              Use scalar values for equality.
-     *              Use array values for in_array() equivalent.
-     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return $this|ChildAssignatureQuery The current query, for fluid interface
-     */
-    public function filterByCareerId($careerId = null, $comparison = null)
-    {
-        if (is_array($careerId)) {
-            $useMinMax = false;
-            if (isset($careerId['min'])) {
-                $this->addUsingAlias(AssignatureTableMap::COL_CAREER_ID, $careerId['min'], Criteria::GREATER_EQUAL);
-                $useMinMax = true;
-            }
-            if (isset($careerId['max'])) {
-                $this->addUsingAlias(AssignatureTableMap::COL_CAREER_ID, $careerId['max'], Criteria::LESS_EQUAL);
-                $useMinMax = true;
-            }
-            if ($useMinMax) {
-                return $this;
-            }
-            if (null === $comparison) {
-                $comparison = Criteria::IN;
-            }
-        }
-
-        return $this->addUsingAlias(AssignatureTableMap::COL_CAREER_ID, $careerId, $comparison);
-    }
-
-    /**
-     * Filter the query by a related \models\Career object
-     *
-     * @param \models\Career|ObjectCollection $career The related object(s) to use as filter
+     * @param \models\CareerAssignature|ObjectCollection $careerAssignature the related object to use as filter
      * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @throws \Propel\Runtime\Exception\PropelException
      *
      * @return ChildAssignatureQuery The current query, for fluid interface
      */
-    public function filterByCareer($career, $comparison = null)
+    public function filterByCareerAssignature($careerAssignature, $comparison = null)
     {
-        if ($career instanceof \models\Career) {
+        if ($careerAssignature instanceof \models\CareerAssignature) {
             return $this
-                ->addUsingAlias(AssignatureTableMap::COL_CAREER_ID, $career->getId(), $comparison);
-        } elseif ($career instanceof ObjectCollection) {
-            if (null === $comparison) {
-                $comparison = Criteria::IN;
-            }
-
+                ->addUsingAlias(AssignatureTableMap::COL_ID, $careerAssignature->getAssignatureId(), $comparison);
+        } elseif ($careerAssignature instanceof ObjectCollection) {
             return $this
-                ->addUsingAlias(AssignatureTableMap::COL_CAREER_ID, $career->toKeyValue('PrimaryKey', 'Id'), $comparison);
+                ->useCareerAssignatureQuery()
+                ->filterByPrimaryKeys($careerAssignature->getPrimaryKeys())
+                ->endUse();
         } else {
-            throw new PropelException('filterByCareer() only accepts arguments of type \models\Career or Collection');
+            throw new PropelException('filterByCareerAssignature() only accepts arguments of type \models\CareerAssignature or Collection');
         }
     }
 
     /**
-     * Adds a JOIN clause to the query using the Career relation
+     * Adds a JOIN clause to the query using the CareerAssignature relation
      *
      * @param     string $relationAlias optional alias for the relation
      * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
      *
      * @return $this|ChildAssignatureQuery The current query, for fluid interface
      */
-    public function joinCareer($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    public function joinCareerAssignature($relationAlias = null, $joinType = Criteria::INNER_JOIN)
     {
         $tableMap = $this->getTableMap();
-        $relationMap = $tableMap->getRelation('Career');
+        $relationMap = $tableMap->getRelation('CareerAssignature');
 
         // create a ModelJoin object for this join
         $join = new ModelJoin();
@@ -456,14 +404,14 @@ abstract class AssignatureQuery extends ModelCriteria
             $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
             $this->addJoinObject($join, $relationAlias);
         } else {
-            $this->addJoinObject($join, 'Career');
+            $this->addJoinObject($join, 'CareerAssignature');
         }
 
         return $this;
     }
 
     /**
-     * Use the Career relation Career object
+     * Use the CareerAssignature relation CareerAssignature object
      *
      * @see useQuery()
      *
@@ -471,13 +419,13 @@ abstract class AssignatureQuery extends ModelCriteria
      *                                   to be used as main alias in the secondary query
      * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
      *
-     * @return \models\CareerQuery A secondary query class using the current class as primary query
+     * @return \models\CareerAssignatureQuery A secondary query class using the current class as primary query
      */
-    public function useCareerQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    public function useCareerAssignatureQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
     {
         return $this
-            ->joinCareer($relationAlias, $joinType)
-            ->useQuery($relationAlias ? $relationAlias : 'Career', '\models\CareerQuery');
+            ->joinCareerAssignature($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'CareerAssignature', '\models\CareerAssignatureQuery');
     }
 
     /**
@@ -551,6 +499,23 @@ abstract class AssignatureQuery extends ModelCriteria
         return $this
             ->joinNote($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'Note', '\models\NoteQuery');
+    }
+
+    /**
+     * Filter the query by a related Career object
+     * using the career_assignature table as cross reference
+     *
+     * @param Career $career the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildAssignatureQuery The current query, for fluid interface
+     */
+    public function filterByCareer($career, $comparison = Criteria::EQUAL)
+    {
+        return $this
+            ->useCareerAssignatureQuery()
+            ->filterByCareer($career, $comparison)
+            ->endUse();
     }
 
     /**

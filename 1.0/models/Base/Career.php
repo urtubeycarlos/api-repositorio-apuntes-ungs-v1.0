@@ -19,8 +19,10 @@ use Propel\Runtime\Parser\AbstractParser;
 use models\Assignature as ChildAssignature;
 use models\AssignatureQuery as ChildAssignatureQuery;
 use models\Career as ChildCareer;
+use models\CareerAssignature as ChildCareerAssignature;
+use models\CareerAssignatureQuery as ChildCareerAssignatureQuery;
 use models\CareerQuery as ChildCareerQuery;
-use models\Map\AssignatureTableMap;
+use models\Map\CareerAssignatureTableMap;
 use models\Map\CareerTableMap;
 
 /**
@@ -86,9 +88,19 @@ abstract class Career implements ActiveRecordInterface
     protected $md5_name;
 
     /**
-     * @var        ObjectCollection|ChildAssignature[] Collection to store aggregation of ChildAssignature objects.
+     * @var        ObjectCollection|ChildCareerAssignature[] Collection to store aggregation of ChildCareerAssignature objects.
+     */
+    protected $collCareerAssignatures;
+    protected $collCareerAssignaturesPartial;
+
+    /**
+     * @var        ObjectCollection|ChildAssignature[] Cross Collection to store aggregation of ChildAssignature objects.
      */
     protected $collAssignatures;
+
+    /**
+     * @var bool
+     */
     protected $collAssignaturesPartial;
 
     /**
@@ -104,6 +116,12 @@ abstract class Career implements ActiveRecordInterface
      * @var ObjectCollection|ChildAssignature[]
      */
     protected $assignaturesScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildCareerAssignature[]
+     */
+    protected $careerAssignaturesScheduledForDeletion = null;
 
     /**
      * Initializes internal state of models\Base\Career object.
@@ -533,8 +551,9 @@ abstract class Career implements ActiveRecordInterface
 
         if ($deep) {  // also de-associate any related objects?
 
-            $this->collAssignatures = null;
+            $this->collCareerAssignatures = null;
 
+            $this->collAssignatures = null;
         } // if (deep)
     }
 
@@ -651,15 +670,44 @@ abstract class Career implements ActiveRecordInterface
 
             if ($this->assignaturesScheduledForDeletion !== null) {
                 if (!$this->assignaturesScheduledForDeletion->isEmpty()) {
-                    \models\AssignatureQuery::create()
-                        ->filterByPrimaryKeys($this->assignaturesScheduledForDeletion->getPrimaryKeys(false))
+                    $pks = array();
+                    foreach ($this->assignaturesScheduledForDeletion as $entry) {
+                        $entryPk = [];
+
+                        $entryPk[0] = $this->getId();
+                        $entryPk[1] = $entry->getId();
+                        $pks[] = $entryPk;
+                    }
+
+                    \models\CareerAssignatureQuery::create()
+                        ->filterByPrimaryKeys($pks)
                         ->delete($con);
+
                     $this->assignaturesScheduledForDeletion = null;
+                }
+
+            }
+
+            if ($this->collAssignatures) {
+                foreach ($this->collAssignatures as $assignature) {
+                    if (!$assignature->isDeleted() && ($assignature->isNew() || $assignature->isModified())) {
+                        $assignature->save($con);
+                    }
                 }
             }
 
-            if ($this->collAssignatures !== null) {
-                foreach ($this->collAssignatures as $referrerFK) {
+
+            if ($this->careerAssignaturesScheduledForDeletion !== null) {
+                if (!$this->careerAssignaturesScheduledForDeletion->isEmpty()) {
+                    \models\CareerAssignatureQuery::create()
+                        ->filterByPrimaryKeys($this->careerAssignaturesScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->careerAssignaturesScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collCareerAssignatures !== null) {
+                foreach ($this->collCareerAssignatures as $referrerFK) {
                     if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
                         $affectedRows += $referrerFK->save($con);
                     }
@@ -832,20 +880,20 @@ abstract class Career implements ActiveRecordInterface
         }
 
         if ($includeForeignObjects) {
-            if (null !== $this->collAssignatures) {
+            if (null !== $this->collCareerAssignatures) {
 
                 switch ($keyType) {
                     case TableMap::TYPE_CAMELNAME:
-                        $key = 'assignatures';
+                        $key = 'careerAssignatures';
                         break;
                     case TableMap::TYPE_FIELDNAME:
-                        $key = 'assignatures';
+                        $key = 'career_assignatures';
                         break;
                     default:
-                        $key = 'Assignatures';
+                        $key = 'CareerAssignatures';
                 }
 
-                $result[$key] = $this->collAssignatures->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+                $result[$key] = $this->collCareerAssignatures->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
         }
 
@@ -1069,9 +1117,9 @@ abstract class Career implements ActiveRecordInterface
             // the getter/setter methods for fkey referrer objects.
             $copyObj->setNew(false);
 
-            foreach ($this->getAssignatures() as $relObj) {
+            foreach ($this->getCareerAssignatures() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-                    $copyObj->addAssignature($relObj->copy($deepCopy));
+                    $copyObj->addCareerAssignature($relObj->copy($deepCopy));
                 }
             }
 
@@ -1116,10 +1164,263 @@ abstract class Career implements ActiveRecordInterface
      */
     public function initRelation($relationName)
     {
-        if ('Assignature' == $relationName) {
-            $this->initAssignatures();
+        if ('CareerAssignature' == $relationName) {
+            $this->initCareerAssignatures();
             return;
         }
+    }
+
+    /**
+     * Clears out the collCareerAssignatures collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addCareerAssignatures()
+     */
+    public function clearCareerAssignatures()
+    {
+        $this->collCareerAssignatures = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collCareerAssignatures collection loaded partially.
+     */
+    public function resetPartialCareerAssignatures($v = true)
+    {
+        $this->collCareerAssignaturesPartial = $v;
+    }
+
+    /**
+     * Initializes the collCareerAssignatures collection.
+     *
+     * By default this just sets the collCareerAssignatures collection to an empty array (like clearcollCareerAssignatures());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initCareerAssignatures($overrideExisting = true)
+    {
+        if (null !== $this->collCareerAssignatures && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = CareerAssignatureTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collCareerAssignatures = new $collectionClassName;
+        $this->collCareerAssignatures->setModel('\models\CareerAssignature');
+    }
+
+    /**
+     * Gets an array of ChildCareerAssignature objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildCareer is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildCareerAssignature[] List of ChildCareerAssignature objects
+     * @throws PropelException
+     */
+    public function getCareerAssignatures(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collCareerAssignaturesPartial && !$this->isNew();
+        if (null === $this->collCareerAssignatures || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collCareerAssignatures) {
+                // return empty collection
+                $this->initCareerAssignatures();
+            } else {
+                $collCareerAssignatures = ChildCareerAssignatureQuery::create(null, $criteria)
+                    ->filterByCareer($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collCareerAssignaturesPartial && count($collCareerAssignatures)) {
+                        $this->initCareerAssignatures(false);
+
+                        foreach ($collCareerAssignatures as $obj) {
+                            if (false == $this->collCareerAssignatures->contains($obj)) {
+                                $this->collCareerAssignatures->append($obj);
+                            }
+                        }
+
+                        $this->collCareerAssignaturesPartial = true;
+                    }
+
+                    return $collCareerAssignatures;
+                }
+
+                if ($partial && $this->collCareerAssignatures) {
+                    foreach ($this->collCareerAssignatures as $obj) {
+                        if ($obj->isNew()) {
+                            $collCareerAssignatures[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collCareerAssignatures = $collCareerAssignatures;
+                $this->collCareerAssignaturesPartial = false;
+            }
+        }
+
+        return $this->collCareerAssignatures;
+    }
+
+    /**
+     * Sets a collection of ChildCareerAssignature objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $careerAssignatures A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildCareer The current object (for fluent API support)
+     */
+    public function setCareerAssignatures(Collection $careerAssignatures, ConnectionInterface $con = null)
+    {
+        /** @var ChildCareerAssignature[] $careerAssignaturesToDelete */
+        $careerAssignaturesToDelete = $this->getCareerAssignatures(new Criteria(), $con)->diff($careerAssignatures);
+
+
+        //since at least one column in the foreign key is at the same time a PK
+        //we can not just set a PK to NULL in the lines below. We have to store
+        //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
+        $this->careerAssignaturesScheduledForDeletion = clone $careerAssignaturesToDelete;
+
+        foreach ($careerAssignaturesToDelete as $careerAssignatureRemoved) {
+            $careerAssignatureRemoved->setCareer(null);
+        }
+
+        $this->collCareerAssignatures = null;
+        foreach ($careerAssignatures as $careerAssignature) {
+            $this->addCareerAssignature($careerAssignature);
+        }
+
+        $this->collCareerAssignatures = $careerAssignatures;
+        $this->collCareerAssignaturesPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related CareerAssignature objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related CareerAssignature objects.
+     * @throws PropelException
+     */
+    public function countCareerAssignatures(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collCareerAssignaturesPartial && !$this->isNew();
+        if (null === $this->collCareerAssignatures || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collCareerAssignatures) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getCareerAssignatures());
+            }
+
+            $query = ChildCareerAssignatureQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByCareer($this)
+                ->count($con);
+        }
+
+        return count($this->collCareerAssignatures);
+    }
+
+    /**
+     * Method called to associate a ChildCareerAssignature object to this object
+     * through the ChildCareerAssignature foreign key attribute.
+     *
+     * @param  ChildCareerAssignature $l ChildCareerAssignature
+     * @return $this|\models\Career The current object (for fluent API support)
+     */
+    public function addCareerAssignature(ChildCareerAssignature $l)
+    {
+        if ($this->collCareerAssignatures === null) {
+            $this->initCareerAssignatures();
+            $this->collCareerAssignaturesPartial = true;
+        }
+
+        if (!$this->collCareerAssignatures->contains($l)) {
+            $this->doAddCareerAssignature($l);
+
+            if ($this->careerAssignaturesScheduledForDeletion and $this->careerAssignaturesScheduledForDeletion->contains($l)) {
+                $this->careerAssignaturesScheduledForDeletion->remove($this->careerAssignaturesScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildCareerAssignature $careerAssignature The ChildCareerAssignature object to add.
+     */
+    protected function doAddCareerAssignature(ChildCareerAssignature $careerAssignature)
+    {
+        $this->collCareerAssignatures[]= $careerAssignature;
+        $careerAssignature->setCareer($this);
+    }
+
+    /**
+     * @param  ChildCareerAssignature $careerAssignature The ChildCareerAssignature object to remove.
+     * @return $this|ChildCareer The current object (for fluent API support)
+     */
+    public function removeCareerAssignature(ChildCareerAssignature $careerAssignature)
+    {
+        if ($this->getCareerAssignatures()->contains($careerAssignature)) {
+            $pos = $this->collCareerAssignatures->search($careerAssignature);
+            $this->collCareerAssignatures->remove($pos);
+            if (null === $this->careerAssignaturesScheduledForDeletion) {
+                $this->careerAssignaturesScheduledForDeletion = clone $this->collCareerAssignatures;
+                $this->careerAssignaturesScheduledForDeletion->clear();
+            }
+            $this->careerAssignaturesScheduledForDeletion[]= clone $careerAssignature;
+            $careerAssignature->setCareer(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Career is new, it will return
+     * an empty collection; or if this Career has previously
+     * been saved, it will retrieve related CareerAssignatures from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Career.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildCareerAssignature[] List of ChildCareerAssignature objects
+     */
+    public function getCareerAssignaturesJoinAssignature(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildCareerAssignatureQuery::create(null, $criteria);
+        $query->joinWith('Assignature', $joinBehavior);
+
+        return $this->getCareerAssignatures($query, $con);
     }
 
     /**
@@ -1137,39 +1438,36 @@ abstract class Career implements ActiveRecordInterface
     }
 
     /**
-     * Reset is the collAssignatures collection loaded partially.
-     */
-    public function resetPartialAssignatures($v = true)
-    {
-        $this->collAssignaturesPartial = $v;
-    }
-
-    /**
-     * Initializes the collAssignatures collection.
+     * Initializes the collAssignatures crossRef collection.
      *
-     * By default this just sets the collAssignatures collection to an empty array (like clearcollAssignatures());
+     * By default this just sets the collAssignatures collection to an empty collection (like clearAssignatures());
      * however, you may wish to override this method in your stub class to provide setting appropriate
      * to your application -- for example, setting the initial array to the values stored in database.
      *
-     * @param      boolean $overrideExisting If set to true, the method call initializes
-     *                                        the collection even if it is not empty
-     *
      * @return void
      */
-    public function initAssignatures($overrideExisting = true)
+    public function initAssignatures()
     {
-        if (null !== $this->collAssignatures && !$overrideExisting) {
-            return;
-        }
-
-        $collectionClassName = AssignatureTableMap::getTableMap()->getCollectionClassName();
+        $collectionClassName = CareerAssignatureTableMap::getTableMap()->getCollectionClassName();
 
         $this->collAssignatures = new $collectionClassName;
+        $this->collAssignaturesPartial = true;
         $this->collAssignatures->setModel('\models\Assignature');
     }
 
     /**
-     * Gets an array of ChildAssignature objects which contain a foreign key that references this object.
+     * Checks if the collAssignatures collection is loaded.
+     *
+     * @return bool
+     */
+    public function isAssignaturesLoaded()
+    {
+        return null !== $this->collAssignatures;
+    }
+
+    /**
+     * Gets a collection of ChildAssignature objects related by a many-to-many relationship
+     * to the current object by way of the career_assignature cross-reference table.
      *
      * If the $criteria is not null, it is used to always fetch the results from the database.
      * Otherwise the results are fetched from the database the first time, then cached.
@@ -1177,42 +1475,33 @@ abstract class Career implements ActiveRecordInterface
      * If this ChildCareer is new, it will return
      * an empty collection or the current collection; the criteria is ignored on a new object.
      *
-     * @param      Criteria $criteria optional Criteria object to narrow the query
-     * @param      ConnectionInterface $con optional connection object
+     * @param      Criteria $criteria Optional query object to filter the query
+     * @param      ConnectionInterface $con Optional connection object
+     *
      * @return ObjectCollection|ChildAssignature[] List of ChildAssignature objects
-     * @throws PropelException
      */
     public function getAssignatures(Criteria $criteria = null, ConnectionInterface $con = null)
     {
         $partial = $this->collAssignaturesPartial && !$this->isNew();
-        if (null === $this->collAssignatures || null !== $criteria  || $partial) {
-            if ($this->isNew() && null === $this->collAssignatures) {
+        if (null === $this->collAssignatures || null !== $criteria || $partial) {
+            if ($this->isNew()) {
                 // return empty collection
-                $this->initAssignatures();
+                if (null === $this->collAssignatures) {
+                    $this->initAssignatures();
+                }
             } else {
-                $collAssignatures = ChildAssignatureQuery::create(null, $criteria)
-                    ->filterByCareer($this)
-                    ->find($con);
 
+                $query = ChildAssignatureQuery::create(null, $criteria)
+                    ->filterByCareer($this);
+                $collAssignatures = $query->find($con);
                 if (null !== $criteria) {
-                    if (false !== $this->collAssignaturesPartial && count($collAssignatures)) {
-                        $this->initAssignatures(false);
-
-                        foreach ($collAssignatures as $obj) {
-                            if (false == $this->collAssignatures->contains($obj)) {
-                                $this->collAssignatures->append($obj);
-                            }
-                        }
-
-                        $this->collAssignaturesPartial = true;
-                    }
-
                     return $collAssignatures;
                 }
 
                 if ($partial && $this->collAssignatures) {
+                    //make sure that already added objects gets added to the list of the database.
                     foreach ($this->collAssignatures as $obj) {
-                        if ($obj->isNew()) {
+                        if (!$collAssignatures->contains($obj)) {
                             $collAssignatures[] = $obj;
                         }
                     }
@@ -1227,46 +1516,47 @@ abstract class Career implements ActiveRecordInterface
     }
 
     /**
-     * Sets a collection of ChildAssignature objects related by a one-to-many relationship
-     * to the current object.
+     * Sets a collection of Assignature objects related by a many-to-many relationship
+     * to the current object by way of the career_assignature cross-reference table.
      * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
      * and new objects from the given Propel collection.
      *
-     * @param      Collection $assignatures A Propel collection.
-     * @param      ConnectionInterface $con Optional connection object
+     * @param  Collection $assignatures A Propel collection.
+     * @param  ConnectionInterface $con Optional connection object
      * @return $this|ChildCareer The current object (for fluent API support)
      */
     public function setAssignatures(Collection $assignatures, ConnectionInterface $con = null)
     {
-        /** @var ChildAssignature[] $assignaturesToDelete */
-        $assignaturesToDelete = $this->getAssignatures(new Criteria(), $con)->diff($assignatures);
+        $this->clearAssignatures();
+        $currentAssignatures = $this->getAssignatures();
 
+        $assignaturesScheduledForDeletion = $currentAssignatures->diff($assignatures);
 
-        $this->assignaturesScheduledForDeletion = $assignaturesToDelete;
-
-        foreach ($assignaturesToDelete as $assignatureRemoved) {
-            $assignatureRemoved->setCareer(null);
+        foreach ($assignaturesScheduledForDeletion as $toDelete) {
+            $this->removeAssignature($toDelete);
         }
 
-        $this->collAssignatures = null;
         foreach ($assignatures as $assignature) {
-            $this->addAssignature($assignature);
+            if (!$currentAssignatures->contains($assignature)) {
+                $this->doAddAssignature($assignature);
+            }
         }
 
-        $this->collAssignatures = $assignatures;
         $this->collAssignaturesPartial = false;
+        $this->collAssignatures = $assignatures;
 
         return $this;
     }
 
     /**
-     * Returns the number of related Assignature objects.
+     * Gets the number of Assignature objects related by a many-to-many relationship
+     * to the current object by way of the career_assignature cross-reference table.
      *
-     * @param      Criteria $criteria
-     * @param      boolean $distinct
-     * @param      ConnectionInterface $con
-     * @return int             Count of related Assignature objects.
-     * @throws PropelException
+     * @param      Criteria $criteria Optional query object to filter the query
+     * @param      boolean $distinct Set to true to force count distinct
+     * @param      ConnectionInterface $con Optional connection object
+     *
+     * @return int the number of related Assignature objects
      */
     public function countAssignatures(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
     {
@@ -1274,75 +1564,104 @@ abstract class Career implements ActiveRecordInterface
         if (null === $this->collAssignatures || null !== $criteria || $partial) {
             if ($this->isNew() && null === $this->collAssignatures) {
                 return 0;
-            }
+            } else {
 
-            if ($partial && !$criteria) {
-                return count($this->getAssignatures());
-            }
+                if ($partial && !$criteria) {
+                    return count($this->getAssignatures());
+                }
 
-            $query = ChildAssignatureQuery::create(null, $criteria);
-            if ($distinct) {
-                $query->distinct();
-            }
+                $query = ChildAssignatureQuery::create(null, $criteria);
+                if ($distinct) {
+                    $query->distinct();
+                }
 
-            return $query
-                ->filterByCareer($this)
-                ->count($con);
+                return $query
+                    ->filterByCareer($this)
+                    ->count($con);
+            }
+        } else {
+            return count($this->collAssignatures);
         }
-
-        return count($this->collAssignatures);
     }
 
     /**
-     * Method called to associate a ChildAssignature object to this object
-     * through the ChildAssignature foreign key attribute.
+     * Associate a ChildAssignature to this object
+     * through the career_assignature cross reference table.
      *
-     * @param  ChildAssignature $l ChildAssignature
-     * @return $this|\models\Career The current object (for fluent API support)
+     * @param ChildAssignature $assignature
+     * @return ChildCareer The current object (for fluent API support)
      */
-    public function addAssignature(ChildAssignature $l)
+    public function addAssignature(ChildAssignature $assignature)
     {
         if ($this->collAssignatures === null) {
             $this->initAssignatures();
-            $this->collAssignaturesPartial = true;
         }
 
-        if (!$this->collAssignatures->contains($l)) {
-            $this->doAddAssignature($l);
-
-            if ($this->assignaturesScheduledForDeletion and $this->assignaturesScheduledForDeletion->contains($l)) {
-                $this->assignaturesScheduledForDeletion->remove($this->assignaturesScheduledForDeletion->search($l));
-            }
+        if (!$this->getAssignatures()->contains($assignature)) {
+            // only add it if the **same** object is not already associated
+            $this->collAssignatures->push($assignature);
+            $this->doAddAssignature($assignature);
         }
 
         return $this;
     }
 
     /**
-     * @param ChildAssignature $assignature The ChildAssignature object to add.
+     *
+     * @param ChildAssignature $assignature
      */
     protected function doAddAssignature(ChildAssignature $assignature)
     {
-        $this->collAssignatures[]= $assignature;
-        $assignature->setCareer($this);
+        $careerAssignature = new ChildCareerAssignature();
+
+        $careerAssignature->setAssignature($assignature);
+
+        $careerAssignature->setCareer($this);
+
+        $this->addCareerAssignature($careerAssignature);
+
+        // set the back reference to this object directly as using provided method either results
+        // in endless loop or in multiple relations
+        if (!$assignature->isCareersLoaded()) {
+            $assignature->initCareers();
+            $assignature->getCareers()->push($this);
+        } elseif (!$assignature->getCareers()->contains($this)) {
+            $assignature->getCareers()->push($this);
+        }
+
     }
 
     /**
-     * @param  ChildAssignature $assignature The ChildAssignature object to remove.
-     * @return $this|ChildCareer The current object (for fluent API support)
+     * Remove assignature of this object
+     * through the career_assignature cross reference table.
+     *
+     * @param ChildAssignature $assignature
+     * @return ChildCareer The current object (for fluent API support)
      */
     public function removeAssignature(ChildAssignature $assignature)
     {
         if ($this->getAssignatures()->contains($assignature)) {
-            $pos = $this->collAssignatures->search($assignature);
-            $this->collAssignatures->remove($pos);
+            $careerAssignature = new ChildCareerAssignature();
+            $careerAssignature->setAssignature($assignature);
+            if ($assignature->isCareersLoaded()) {
+                //remove the back reference if available
+                $assignature->getCareers()->removeObject($this);
+            }
+
+            $careerAssignature->setCareer($this);
+            $this->removeCareerAssignature(clone $careerAssignature);
+            $careerAssignature->clear();
+
+            $this->collAssignatures->remove($this->collAssignatures->search($assignature));
+
             if (null === $this->assignaturesScheduledForDeletion) {
                 $this->assignaturesScheduledForDeletion = clone $this->collAssignatures;
                 $this->assignaturesScheduledForDeletion->clear();
             }
-            $this->assignaturesScheduledForDeletion[]= clone $assignature;
-            $assignature->setCareer(null);
+
+            $this->assignaturesScheduledForDeletion->push($assignature);
         }
+
 
         return $this;
     }
@@ -1375,6 +1694,11 @@ abstract class Career implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collCareerAssignatures) {
+                foreach ($this->collCareerAssignatures as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
             if ($this->collAssignatures) {
                 foreach ($this->collAssignatures as $o) {
                     $o->clearAllReferences($deep);
@@ -1382,6 +1706,7 @@ abstract class Career implements ActiveRecordInterface
             }
         } // if ($deep)
 
+        $this->collCareerAssignatures = null;
         $this->collAssignatures = null;
     }
 

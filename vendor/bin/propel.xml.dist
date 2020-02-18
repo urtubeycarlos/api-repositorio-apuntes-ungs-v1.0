@@ -14,7 +14,7 @@
             <!-- The directory where Propel expects to find your `schema.xml` file. -->
             <schemaDir>C:\xampp\htdocs\api\vendor\bin</schemaDir>
             <!-- The directory where Propel should output generated object model classes. -->
-            <phpDir>C:\xampp\htdocs\api\v1.0</phpDir>
+            <phpDir>C:\xampp\htdocs\api\1.0</phpDir>
         </paths>
 
         <!--
@@ -22,7 +22,7 @@
             <connections>
                 <connection id="default">
                     <adapter>mysql</adapter>
-                    <dsn>mysql:host=localhost;port=3306;dbname=</dsn>
+                    <dsn>mysql:host=localhost;port=3306;dbname=repositorio-apuntes</dsn>
                     <user>root</user>
                     <password></password>
                     <settings>

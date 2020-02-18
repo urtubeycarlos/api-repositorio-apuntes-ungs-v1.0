@@ -146,13 +146,14 @@ class CareerTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('Assignature', '\\models\\Assignature', RelationMap::ONE_TO_MANY, array (
+        $this->addRelation('CareerAssignature', '\\models\\CareerAssignature', RelationMap::ONE_TO_MANY, array (
   0 =>
   array (
     0 => ':career_id',
     1 => ':id',
   ),
-), null, null, 'Assignatures', false);
+), null, null, 'CareerAssignatures', false);
+        $this->addRelation('Assignature', '\\models\\Assignature', RelationMap::MANY_TO_MANY, array(), null, null, 'Assignatures');
     } // buildRelations()
 
     /**

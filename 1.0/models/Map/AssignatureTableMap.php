@@ -59,7 +59,7 @@ class AssignatureTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 4;
+    const NUM_COLUMNS = 3;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class AssignatureTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 4;
+    const NUM_HYDRATE_COLUMNS = 3;
 
     /**
      * the column name for the id field
@@ -87,11 +87,6 @@ class AssignatureTableMap extends TableMap
     const COL_MD5_NAME = 'assignature.md5_name';
 
     /**
-     * the column name for the career_id field
-     */
-    const COL_CAREER_ID = 'assignature.career_id';
-
-    /**
      * The default string format for model objects of the related table
      */
     const DEFAULT_STRING_FORMAT = 'YAML';
@@ -103,11 +98,11 @@ class AssignatureTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Name', 'Md5Name', 'CareerId', ),
-        self::TYPE_CAMELNAME     => array('id', 'name', 'md5Name', 'careerId', ),
-        self::TYPE_COLNAME       => array(AssignatureTableMap::COL_ID, AssignatureTableMap::COL_NAME, AssignatureTableMap::COL_MD5_NAME, AssignatureTableMap::COL_CAREER_ID, ),
-        self::TYPE_FIELDNAME     => array('id', 'name', 'md5_name', 'career_id', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Id', 'Name', 'Md5Name', ),
+        self::TYPE_CAMELNAME     => array('id', 'name', 'md5Name', ),
+        self::TYPE_COLNAME       => array(AssignatureTableMap::COL_ID, AssignatureTableMap::COL_NAME, AssignatureTableMap::COL_MD5_NAME, ),
+        self::TYPE_FIELDNAME     => array('id', 'name', 'md5_name', ),
+        self::TYPE_NUM           => array(0, 1, 2, )
     );
 
     /**
@@ -117,11 +112,11 @@ class AssignatureTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, 'Md5Name' => 2, 'CareerId' => 3, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, 'md5Name' => 2, 'careerId' => 3, ),
-        self::TYPE_COLNAME       => array(AssignatureTableMap::COL_ID => 0, AssignatureTableMap::COL_NAME => 1, AssignatureTableMap::COL_MD5_NAME => 2, AssignatureTableMap::COL_CAREER_ID => 3, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, 'md5_name' => 2, 'career_id' => 3, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, 'Md5Name' => 2, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, 'md5Name' => 2, ),
+        self::TYPE_COLNAME       => array(AssignatureTableMap::COL_ID => 0, AssignatureTableMap::COL_NAME => 1, AssignatureTableMap::COL_MD5_NAME => 2, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, 'md5_name' => 2, ),
+        self::TYPE_NUM           => array(0, 1, 2, )
     );
 
     /**
@@ -144,7 +139,6 @@ class AssignatureTableMap extends TableMap
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('name', 'Name', 'VARCHAR', true, 128, null);
         $this->addColumn('md5_name', 'Md5Name', 'VARCHAR', true, 256, null);
-        $this->addForeignKey('career_id', 'CareerId', 'INTEGER', 'career', 'id', true, null, null);
     } // initialize()
 
     /**
@@ -152,13 +146,13 @@ class AssignatureTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('Career', '\\models\\Career', RelationMap::MANY_TO_ONE, array (
+        $this->addRelation('CareerAssignature', '\\models\\CareerAssignature', RelationMap::ONE_TO_MANY, array (
   0 =>
   array (
-    0 => ':career_id',
+    0 => ':assignature_id',
     1 => ':id',
   ),
-), null, null, null, false);
+), null, null, 'CareerAssignatures', false);
         $this->addRelation('Note', '\\models\\Note', RelationMap::ONE_TO_MANY, array (
   0 =>
   array (
@@ -166,6 +160,7 @@ class AssignatureTableMap extends TableMap
     1 => ':id',
   ),
 ), null, null, 'Notes', false);
+        $this->addRelation('Career', '\\models\\Career', RelationMap::MANY_TO_MANY, array(), null, null, 'Careers');
     } // buildRelations()
 
     /**
@@ -312,12 +307,10 @@ class AssignatureTableMap extends TableMap
             $criteria->addSelectColumn(AssignatureTableMap::COL_ID);
             $criteria->addSelectColumn(AssignatureTableMap::COL_NAME);
             $criteria->addSelectColumn(AssignatureTableMap::COL_MD5_NAME);
-            $criteria->addSelectColumn(AssignatureTableMap::COL_CAREER_ID);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.name');
             $criteria->addSelectColumn($alias . '.md5_name');
-            $criteria->addSelectColumn($alias . '.career_id');
         }
     }
 
