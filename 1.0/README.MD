@@ -1,0 +1,1 @@
+Copiar la carperta "api" entera en un servidor para su correcto funcionamiento, puede ser WAMP o XAMP, ya que se estaba trabajando en un server con soporte para git.
