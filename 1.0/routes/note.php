@@ -1,29 +1,26 @@
 <?php
 
-    use Propel\Runtime\Propel;
-
     $app->get('/note', function($request, $response){
         $response = $response->withHeader('Content-type', 'application/json; charset=utf-8');
         
-        $notes = \models\NoteQuery::create()
-            ->find()
-            ->toJSON();
-
-        $response->getBody()->write($notes);
-        return $response;
-    });
-
-    $app->get('/note/{assignature_id}', function($request, $response, $assignature_id){
-        $response = $response->withHeader('Content-type', 'application/json; charset=utf-8');
         
-        $assignature = \models\AssignatureQuery::create()
-            ->filterById($assignature_id)
-            ->findOne();        
+        $assignature_id = $request->getParam('assignatureid');
+        
+        if( $assignature_id ){
+            
+            $assignature = \models\AssignatureQuery::create()
+                ->findPk($assignature_id);
 
-        $notes = \models\NoteQuery::create()
-            ->filterByAssignature($assignature)
-            ->find()
-            ->toJSON();
+            $notes = \models\NoteQuery::create()
+                ->filterByAssignature($assignature)
+                ->find()
+                ->toJSON();
+        } else {
+            
+            $notes = \models\NoteQuery::create()
+                ->find()
+                ->toJSON();
+        }
         
         $response->getBody()->write($notes);
         return $response; 

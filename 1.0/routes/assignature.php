@@ -3,33 +3,28 @@
     $app->get('/assignature', function($request, $response){
         $response = $response->withHeader('Content-type', 'application/json; charset=utf-8');
 
-        $assignatures = \models\AssignatureQuery::create()
-            ->find()
-            ->toJSON();
-
-        $response->getBody()->write($assignatures);
-        return $response;
-    });
-
-    $app->get('/assignature/{career_id}', function($request, $response, $career_id){
-        $response = $response->withHeader('Content-type', 'application/json; charset=utf-8');
-
-        try {
-            $carrer = \models\AssignatureQuery::create()
-                ->filterById($career_id)
-                ->find();   
+        $career_id = (int) $request->getParam('careerid');
         
+        if( $career_id ){
+            
+            $carrer = \models\CareerQuery::create()
+                ->findPk($career_id);
+    
             $assignatures = \models\AssignatureQuery::create()
                 ->filterByCareer($carrer)
                 ->find()
                 ->toJSON();
             
-            $response->getBody()->write($assignatures);
-            return $response;
-
-        } catch (\Throwable $th) {
-            echo $th;
+        } else {
+         
+            $assignatures = \models\AssignatureQuery::create()
+                ->find()
+                ->toJSON();
+            
         }
+
+        $response->getBody()->write($assignatures);
+        return $response;
         
     });
 
@@ -56,23 +51,38 @@
                     );
                 } else {
     
-                    $assignatures = \models\AssignatureQuery::create()->findByName($name);
-    
-                    if( $assignatures->count() == 0 ){
-    
-                        $md5name = md5($name);
-                        
-                        $carrer = \models\CareerQuery::create()
+                    $career = \models\CareerQuery::create()
                             ->filterById($career_id)
                             ->findOne();
+    
+                    $assignature = \models\AssignatureQuery::create()
+                            ->filterByName($name)
+                            ->findOne();
+    
+                    if( $assignature ){
+                        
+                        $assignature->addCareer($career);
+                        $assignature->save();
 
-                        mkdir( "./../../docs/" . $carrer->getMd5Name() . "/" . $md5name);
+                        $status = array(
+                            'status' => 'succes', 
+                            'description' => 'Assignature linked again successfully',
+                            'code' => 201
+                        );
+    
+                    } else {
+                        
+                        $md5name = md5($name);
+                        
+                        
+
+                        mkdir( "./../../docs/" . $career->getMd5Name() . "/" . $md5name);
                         
                         $assignature = new \models\Assignature();
                         $assignature->setName($name);
                         $assignature->setMd5Name($md5name);
-                        $assignature->addCareer($carrer);
-                        $carrer->addAssignature($assignature);
+                        $assignature->addCareer($career);
+                        $career->addAssignature($assignature);
                         $assignature->save();
                         
                         $status = array(
@@ -80,7 +90,7 @@
                             'description' => 'Assignature created successfully',
                             'code' => 201
                         ); 
-                    }          
+                    }        
     
                 }
             } catch (\Throwable $th) {

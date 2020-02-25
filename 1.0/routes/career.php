@@ -3,23 +3,21 @@
     $app->get("/career", function($request, $response){
         $response = $response->withHeader('Content-type', 'application/json; charset=utf-8');
         
-        $careers = \models\CareerQuery::create()
-            ->find()
-            ->toJSON();
+        $id = $request->getParam('id');
+    
+        if( $id ){
+            $careers = \models\CareerQuery::create()
+                ->findPk($id)
+                ->toJSON();
+        } else {
+            
+            $careers = \models\CareerQuery::create()
+                ->find()
+                ->toJSON();
+        }
+        
 
         $response->getBody()->write($careers);
-        return $response;
-    });
-
-    $app->get('/career/{id}', function($request, $response, $id){
-        $response = $response->withHeader('Content-type', 'application/json; charset=utf-8');
-        
-        $career = \models\CareerQuery::create()
-            ->filterById($id)
-            ->findOne()
-            ->toJSON();
-
-        $response->getBody()->write($career);
         return $response;
     });
 
