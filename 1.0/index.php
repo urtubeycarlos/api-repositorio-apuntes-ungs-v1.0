@@ -46,15 +46,6 @@ $app->get("/", function($resquest, $response) use($apiVersion, $apiName) {
                     'description' => 'Carrera universitaria que posee el id recibido.',
                     'example' => "/api/1.0/career?id=1",
                 )
-            ),
-            'POST'=> array(
-                'api/:versionid/login' => array(
-                    'description' => 'Te loguea a la app utilizando geolocalización',
-                    'body' => array(
-                        'lat' => 'Latitud del dispositivo',
-                        'lon' => 'Longitud del dispositivo'
-                    )
-                )
             )
         ),
         'version' => array(
