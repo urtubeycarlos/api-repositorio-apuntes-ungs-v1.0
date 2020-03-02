@@ -15,7 +15,6 @@ $app = new \Slim\App();
 require 'routes/career.php';
 require 'routes/assignature.php';
 require 'routes/note.php';
-require 'routes/login.php';
 
 $app->get("/", function($resquest, $response) use($apiVersion, $apiName) {
     $response = $response->withHeader('Content-type', 'application/json; charset=utf-8');
