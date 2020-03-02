@@ -76,7 +76,7 @@
                         
                         
 
-                        mkdir( "./../../docs/" . $career->getMd5Name() . "/" . $md5name);
+                        mkdir( "./../../docs/" . $md5name);
                         
                         $assignature = new \models\Assignature();
                         $assignature->setName($name);

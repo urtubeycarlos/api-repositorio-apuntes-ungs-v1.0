@@ -34,9 +34,8 @@
         $extension = $request->getParam('extension');
         $description = $request->getParam('description');
         $assignature_id = $request->getParam('assignatureid');
-        $career_id = $request->getParam('careerid');
         
-        if( !$filename or !$extension or !$description or !$assignature_id or !$career_id ){
+        if( !$filename or !$extension or !$description or !$assignature_id ){
             $status = array(
                 'status' => 'error', 
                 'description' => 'Arguments are empty or invalid',
@@ -47,19 +46,17 @@
             return $response;       
         }
 
-        $carrer = \models\CareerQuery::create()->findPk($career_id);
         $assignature = \models\AssignatureQuery::create()->findPk($assignature_id);
  
-        $md5Career = $carrer->getMd5Name();
         $md5Assignature = $assignature->getMd5Name();
 
-        $uploadFileDir = "./../../docs/$md5Career/$md5Assignature/";
+        $uploadFileDir = "./../../docs/$md5Assignature/";
     
         $newFileName = md5(time() . $filename) . '.' . $extension;
         $dest_path = $uploadFileDir . $newFileName;
 
         $domain = $_SERVER['HTTP_HOST'];
-        $generatedUrl = "http://$domain/docs/$md5Career/$md5Assignature/$newFileName";
+        $generatedUrl = "http://$domain/docs/$md5Assignature/$newFileName";
         
         $fileTmpPath = $_FILES[$filename]['tmp_name'];
 

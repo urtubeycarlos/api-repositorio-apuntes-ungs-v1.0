@@ -41,8 +41,7 @@
 
             if( $careers->count() == 0 ){
 
-                $md5name = md5($name);
-                mkdir( "./../../docs/" . $md5name . "/");        
+                $md5name = md5($name);        
             
                 $career = new \models\Career();
                 $career->setName($name);
